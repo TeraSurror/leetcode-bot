@@ -1,4 +1,4 @@
-# LeetCode Accountability Bot — scaffold
+# LeetCode Accountability Bot
 
 A working Discord bot skeleton for the flow we talked through: daily
 check-ins, streaks, curated problem lists, and both automatic and manual
@@ -44,9 +44,9 @@ src/
      submissions and inserts any accepted ones since the last run. It's
      called both by the cron job (right before the daily digest) and
      on-demand via `/sync`.
-  Both write to the same `solves` table with a `UNIQUE(discord_id, slug,
-  date)` constraint, so if both happen to catch the same solve, it's a
-  harmless no-op rather than a duplicate.
+     Both write to the same `solves` table with a `UNIQUE(discord_id, slug,
+date)` constraint, so if both happen to catch the same solve, it's a
+     harmless no-op rather than a duplicate.
 - **The daily digest** (`digest.ts`) runs on a cron schedule, does one
   auto-check pass to catch anything missed, then posts one embed: who
   solved what, everyone's streak, everyone's list progress — the message
@@ -80,7 +80,7 @@ about:
    [discord.com/developers/applications](https://discord.com/developers/applications) →
    New Application → Bot tab → Reset Token (copy it) → OAuth2 → URL
    Generator → check `bot` + `applications.commands` scopes, `Send
-   Messages` + `Use Slash Commands` permissions → open the generated URL to
+Messages` + `Use Slash Commands` permissions → open the generated URL to
    invite it to your server.
 2. **Copy `.env.example` to `.env`** and fill in `DISCORD_TOKEN`,
    `DISCORD_CLIENT_ID` (Application ID, same page as the bot token),
