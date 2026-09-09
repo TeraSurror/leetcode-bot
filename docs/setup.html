@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup &mdash; LeetCode Accountability Bot</title>
+<meta name="description" content="Step-by-step setup: create the Discord application, fill in .env, register slash commands, and start the LeetCode Accountability Bot.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">LeetCode <span>Accountability</span> Bot</a>
+    <nav class="top">
+      <a href="index.html">Overview</a>
+      <a href="setup.html" aria-current="page">Setup</a>
+      <a href="commands.html">Commands</a>
+      <a href="curated-lists.html">Curated lists</a>
+      <a href="https://github.com/TeraSurror/leetcode-bot">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Setup</h1>
+  <p class="lede">Getting from a fresh clone to a running bot in your server. About ten
+  minutes, most of it in the Discord developer portal.</p>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li><strong>Node.js 20 or newer</strong> (the package sets <code>"engines": { "node": "&gt;=20" }</code>).</li>
+    <li>A Discord server you can add a bot to (you need <em>Manage Server</em>).</li>
+    <li>For production, a host that can run a long-lived Node process &mdash; Railway,
+      Fly.io, a spare always-on machine. The bot listens for slash commands
+      continuously; it is not a cron-only script.</li>
+  </ul>
+
+  <h2>1. Create the Discord application</h2>
+  <ol>
+    <li>Go to
+      <a href="https://discord.com/developers/applications">discord.com/developers/applications</a>
+      &rarr; <strong>New Application</strong>.</li>
+    <li><strong>Bot</strong> tab &rarr; <strong>Reset Token</strong> &rarr; copy the token.
+      This is your <code>DISCORD_TOKEN</code>. Keep it secret; anyone with it controls the bot.</li>
+    <li>The <strong>Application ID</strong> on the <em>General Information</em> page is your
+      <code>DISCORD_CLIENT_ID</code>.</li>
+    <li><strong>OAuth2 &rarr; URL Generator</strong>: check the <code>bot</code> and
+      <code>applications.commands</code> scopes, then under bot permissions check
+      <em>Send Messages</em> and <em>Use Slash Commands</em>.</li>
+    <li>Open the generated URL in your browser and invite the bot to your server.</li>
+  </ol>
+
+  <h2>2. Get your server and channel IDs</h2>
+  <p>Turn on <strong>Developer Mode</strong> in Discord (<em>Settings &rarr; Advanced &rarr;
+  Developer Mode</em>), then:</p>
+  <ul>
+    <li>Right-click your server icon &rarr; <strong>Copy Server ID</strong> &rarr;
+      <code>DISCORD_GUILD_ID</code>. (Leave blank to register commands globally instead &mdash;
+      that can take up to an hour to propagate, so a guild ID is strongly recommended while
+      developing.)</li>
+    <li>Right-click the channel the daily digest should post to &rarr;
+      <strong>Copy Channel ID</strong> &rarr; <code>DIGEST_CHANNEL_ID</code>.</li>
+  </ul>
+
+  <h2>3. Configure <code>.env</code></h2>
+  <p>Copy the example file and fill it in:</p>
+  <pre><code>cp .env.example .env</code></pre>
+  <table>
+    <thead><tr><th>Variable</th><th>Required</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>DISCORD_TOKEN</code></td><td>yes</td><td>Bot token from the Bot tab.</td></tr>
+      <tr><td><code>DISCORD_CLIENT_ID</code></td><td>yes</td><td>Application ID.</td></tr>
+      <tr><td><code>DIGEST_CHANNEL_ID</code></td><td>yes</td><td>Channel the digest is posted to. Must be a text channel the bot can send messages in.</td></tr>
+      <tr><td><code>DISCORD_GUILD_ID</code></td><td>no</td><td>Server ID for fast, dev-only command registration. Blank = global registration.</td></tr>
+      <tr><td><code>DIGEST_CRON</code></td><td>no</td><td>Cron expression for the daily digest, in the <em>server's local time</em>. Default <code>"0 8 * * *"</code> (8:00 AM daily).</td></tr>
+      <tr><td><code>DB_PATH</code></td><td>no</td><td>SQLite file path. Default <code>./data/bot.db</code>, created automatically on first run.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Missing a required variable?</strong> The bot throws on startup with the exact
+    name it needs &mdash; <code>Missing required environment variable: &hellip;</code>.
+  </div>
+
+  <h2>4. Install, register commands, run</h2>
+  <pre><code>npm install
+npm run deploy-commands   # registers /register /solved /streak /list /sync
+npm run dev               # starts the bot with tsx</code></pre>
+  <p><code>deploy-commands</code> is a one-off script &mdash; re-run it only when a command's
+  name, description, or options change. With <code>DISCORD_GUILD_ID</code> set, new commands
+  appear in that server almost immediately.</p>
+
+  <h3>Production</h3>
+  <pre><code>npm run build   # tsc -&gt; dist/
+npm start       # node dist/index.js</code></pre>
+  <p>Same behaviour, running compiled JavaScript instead of <code>tsx</code>. Deploy
+  <code>dist/</code> plus <code>node_modules</code> and <code>.env</code> to any host that
+  keeps a Node process alive 24/7. The SQLite file at <code>DB_PATH</code> must live on
+  persistent storage.</p>
+
+  <h2>5. Smoke test</h2>
+  <p>In your server, run these in order:</p>
+  <ol>
+    <li><code>/register username:&lt;your-leetcode-username&gt;</code> &mdash; links your account.</li>
+    <li><code>/solved problem:"Two Sum" difficulty:Easy</code> &mdash; logs a manual solve; the reply shows your streak.</li>
+    <li><code>/list next</code> &mdash; returns the next unsolved problem on the seeded <code>starter</code> list.</li>
+  </ol>
+  <p>Full command details are on the <a href="commands.html">Commands</a> page.</p>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    LeetCode Accountability Bot &mdash; <a href="https://github.com/TeraSurror/leetcode-bot">source on GitHub</a>.
+  </div>
+</footer>
+</body>
+</html>
