@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commands &mdash; LeetCode Accountability Bot</title>
+<meta name="description" content="Reference for every slash command: /register, /solved, /streak, /list, and /sync, plus how streaks and the daily auto-check work.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">LeetCode <span>Accountability</span> Bot</a>
+    <nav class="top">
+      <a href="index.html">Overview</a>
+      <a href="setup.html">Setup</a>
+      <a href="commands.html" aria-current="page">Commands</a>
+      <a href="curated-lists.html">Curated lists</a>
+      <a href="https://github.com/TeraSurror/leetcode-bot">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Commands</h1>
+  <p class="lede">Five slash commands. Replies from <code>/register</code>, <code>/solved</code>
+  (when already logged), and <code>/list switch</code> are ephemeral &mdash; only you see
+  them.</p>
+
+  <h2><code>/register</code></h2>
+  <p>Link your LeetCode username so the daily auto-check can detect your accepted
+  submissions without you logging them by hand.</p>
+  <table>
+    <thead><tr><th>Option</th><th>Required</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>username</code></td><td>yes</td><td>Your <em>exact</em> LeetCode username (case-sensitive, as it appears in <code>leetcode.com/u/&lt;username&gt;</code>).</td></tr>
+    </tbody>
+  </table>
+  <p>On registering, the bot does a cheap reachability call to LeetCode. That mainly
+  catches network failures and obvious typos &mdash; a wrong-but-well-formed username often
+  just comes back empty rather than erroring, so double-check the spelling.</p>
+  <p>You can always log solves manually with <code>/solved</code> whether or not you've
+  registered.</p>
+
+  <h2><code>/solved</code></h2>
+  <p>Log a problem you just solved. Instant, manual, and works for anything &mdash; not only
+  LeetCode problems.</p>
+  <table>
+    <thead><tr><th>Option</th><th>Required</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>problem</code></td><td>yes</td><td>Problem title, e.g. <code>"Two Sum"</code>.</td></tr>
+      <tr><td><code>difficulty</code></td><td>no</td><td>One of <code>Easy</code>, <code>Medium</code>, <code>Hard</code>.</td></tr>
+    </tbody>
+  </table>
+  <p>The reply confirms the solve and shows your current streak and active-list progress.
+  Logging the same problem twice on one day is a harmless no-op &mdash; you'll get an
+  &ldquo;already had that logged for today&rdquo; note.</p>
+  <div class="note">
+    <strong>Slug is guessed from the title.</strong> The bot lowercases and hyphenates what
+    you type (<code>"Two Sum"</code> &rarr; <code>two-sum</code>). That's consistent enough
+    for streaks and usually matches a list's slug, but unusual phrasing can miss. When it
+    matters, match the title to the one on the problem's LeetCode page.
+  </div>
+
+  <h2><code>/streak</code></h2>
+  <p>Check a current streak and active-list progress.</p>
+  <table>
+    <thead><tr><th>Option</th><th>Required</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>user</code></td><td>no</td><td>Whose streak to check. Defaults to you.</td></tr>
+    </tbody>
+  </table>
+  <p>A <strong>streak</strong> is your run of consecutive days with at least one solve. A
+  day with no solve yet doesn't break it until the day actually ends &mdash; so the count
+  runs back from today if today already has a solve, otherwise from yesterday. Day
+  boundaries are <strong>UTC</strong>.</p>
+
+  <h2><code>/list</code></h2>
+  <p>Manage and follow curated problem lists. See the
+  <a href="curated-lists.html">Curated lists</a> page for the CSV format and a worked
+  example.</p>
+  <table>
+    <thead><tr><th>Subcommand</th><th>Options</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>/list create</code></td><td><code>name</code> (required)</td><td>Create a new empty list, e.g. <code>name:hrt-prep</code>.</td></tr>
+      <tr><td><code>/list import</code></td><td><code>name</code> (required), <code>csv</code> file attachment (required)</td><td>Append problems to an existing list from a CSV: <code>title,slug,difficulty</code> per line, difficulty optional, a <code>title,</code> header row skipped automatically.</td></tr>
+      <tr><td><code>/list switch</code></td><td><code>name</code> (required)</td><td>Set <em>your</em> active list. Everyone can be on a different list at once.</td></tr>
+      <tr><td><code>/list next</code></td><td>&mdash;</td><td>Your next unsolved problem on your active list, in import order, with its LeetCode link.</td></tr>
+      <tr><td><code>/list progress</code></td><td><code>user</code> (optional)</td><td>Completion of the active list as <code>solved/total (percent)</code>. Defaults to you.</td></tr>
+    </tbody>
+  </table>
+  <p>Importing into a list that doesn't exist tells you to <code>/list create</code> it
+  first. Re-importing rows already on the list is safe &mdash; the reply reports how many
+  were new versus already there.</p>
+
+  <h2><code>/sync</code></h2>
+  <p>Run the LeetCode auto-check immediately instead of waiting for the daily pass. No
+  options. The reply says how many linked accounts were checked and how many new solves
+  were found.</p>
+
+  <h2>How the daily auto-check works</h2>
+  <ul>
+    <li><strong>Runs once a day</strong> on the digest cron (default <code>0 8 * * *</code>
+      &mdash; 8:00 AM in the server's local time), immediately before the digest is posted.
+      <code>/sync</code> runs the same pass on demand.</li>
+    <li><strong>Looks back 26 hours.</strong> Each run asks LeetCode for your accepted
+      submissions in the last 26 hours &mdash; 24h plus a 2h overlap so a slightly-late run
+      never misses a submission at the boundary.</li>
+    <li><strong>Credits the day you actually solved it.</strong> An auto-detected solve is
+      dated by LeetCode's own submission timestamp (in UTC), not by when the check runs. So
+      solving a problem now counts for today even if the check that picks it up runs
+      tomorrow morning.</li>
+    <li><strong>Gap longer than 26 hours &rarr; missed.</strong> If no auto-check runs
+      within 26 hours of a submission (bot downtime, for instance), the auto path won't see
+      it. Log it with <code>/solved</code>, or run <code>/sync</code> inside the window.</li>
+    <li><strong>Last 20 submissions only.</strong> LeetCode's endpoint returns at most 20
+      recent submissions, so solving 20+ problems between checks can drop the oldest.</li>
+    <li>Manual (<code>/solved</code>) and auto solves write to the same place with a
+      <code>UNIQUE(discord_id, slug, date)</code> constraint, so catching the same solve
+      both ways is a no-op, never a double count.</li>
+  </ul>
+
+  <h2>The daily digest</h2>
+  <p>On the same cron schedule, after the auto-check, the bot posts one embed to
+  <code>DIGEST_CHANNEL_ID</code>: each person's ✅/❌ for the day, what they solved,
+  their streak, and their active-list progress, sorted by streak length. If nobody has any
+  recorded activity, no digest is posted.</p>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    LeetCode Accountability Bot &mdash; <a href="https://github.com/TeraSurror/leetcode-bot">source on GitHub</a>.
+  </div>
+</footer>
+</body>
+</html>

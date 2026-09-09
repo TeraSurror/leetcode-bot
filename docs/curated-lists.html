@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curated lists &mdash; LeetCode Accountability Bot</title>
+<meta name="description" content="How to import NeetCode 150, Blind 75, or your own hand-picked problem set from a CSV, switch between lists, and track progress.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">LeetCode <span>Accountability</span> Bot</a>
+    <nav class="top">
+      <a href="index.html">Overview</a>
+      <a href="setup.html">Setup</a>
+      <a href="commands.html">Commands</a>
+      <a href="curated-lists.html" aria-current="page">Curated lists</a>
+      <a href="https://github.com/TeraSurror/leetcode-bot">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Curated lists</h1>
+  <p class="lede">A list is just an ordered set of problems. Import one from a CSV and the
+  bot tracks how far through it you are and what to do next &mdash; without changing how
+  streaks work.</p>
+
+  <h2>What a list is (and isn't)</h2>
+  <p>Your <strong>solve history</strong> is the source of truth for streaks. A
+  <strong>list</strong> sits alongside it: an ordered set of
+  <code>(slug, title, difficulty)</code> entries. &ldquo;Progress&rdquo; is the overlap
+  between your active list and what you've solved.</p>
+  <ul>
+    <li>Solving a problem that's on your list advances it automatically &mdash; there's no
+      separate &ldquo;mark done on the list&rdquo; step.</li>
+    <li>Solving something off-list still counts toward your streak, just not toward that
+      list's percentage.</li>
+    <li>Everyone can be on a different list at the same time. <code>/list next</code>,
+      <code>/list progress</code>, and <code>/streak</code> all act on whichever list is
+      active <em>for that person</em>.</li>
+  </ul>
+  <p>The bot seeds a small 12-problem demo list called <code>starter</code> on first run so
+  <code>/list next</code> works before anyone imports anything.</p>
+
+  <h2>CSV format</h2>
+  <p>One problem per line: <code>title,slug,difficulty</code>.</p>
+  <ul>
+    <li><strong>title</strong> &mdash; required. The display name, e.g. <code>Two Sum</code>.</li>
+    <li><strong>slug</strong> &mdash; required. The part of the LeetCode URL after
+      <code>/problems/</code>. For <code>leetcode.com/problems/two-sum/</code> the slug is
+      <code>two-sum</code>. This is what <code>/list next</code> links to and what solves
+      are matched against.</li>
+    <li><strong>difficulty</strong> &mdash; optional. <code>Easy</code> / <code>Medium</code> /
+      <code>Hard</code>. Leave the field empty or omit it entirely.</li>
+    <li>A header row starting with <code>title,</code> is skipped automatically.</li>
+    <li>Rows missing a title or slug are ignored. Import order becomes list order.</li>
+  </ul>
+  <pre><code>title,slug,difficulty
+Contains Duplicate,contains-duplicate,Easy
+Valid Anagram,valid-anagram,Easy
+Two Sum,two-sum,Easy
+Group Anagrams,group-anagrams,Medium
+Top K Frequent Elements,top-k-frequent-elements,Medium
+Encode and Decode Strings,encode-and-decode-strings,Medium
+Product of Array Except Self,product-of-array-except-self,Medium
+Valid Sudoku,valid-sudoku,Medium
+Longest Consecutive Sequence,longest-consecutive-sequence,Medium</code></pre>
+
+  <h2>Worked example</h2>
+  <p>Bringing in a hand-picked set and following it:</p>
+  <ol>
+    <li><strong>Create the list.</strong>
+      <pre><code>/list create name:hrt-prep</code></pre></li>
+    <li><strong>Import the CSV.</strong> Run <code>/list import name:hrt-prep</code> and
+      attach your <code>.csv</code> file as the <code>csv</code> option. The reply reports
+      how many problems were newly added and how many were already there.
+      <pre><code>/list import name:hrt-prep csv:&lt;attach hrt-prep.csv&gt;</code></pre></li>
+    <li><strong>Make it your active list.</strong>
+      <pre><code>/list switch name:hrt-prep</code></pre></li>
+    <li><strong>Work through it.</strong> <code>/list next</code> gives your next unsolved
+      problem in import order with its link; <code>/list progress</code> shows
+      <code>solved/total (percent)</code>.</li>
+  </ol>
+
+  <h2>Adding more later</h2>
+  <p><code>/list import</code> appends &mdash; run it again against the same list to add more
+  problems. Rows already on the list are skipped, so re-importing an updated CSV only adds
+  the new entries. New problems go on the end, in the order they appear in the file.</p>
+
+  <h2>Building a CSV for a well-known set</h2>
+  <p>NeetCode 150, Blind 75, and similar lists aren't bundled &mdash; that curation is
+  someone else's editorial work, and CSV import is more flexible anyway. To build one:</p>
+  <ul>
+    <li>Export or copy the problem list from wherever you follow it.</li>
+    <li>For each problem, take the slug straight from its LeetCode URL
+      (<code>leetcode.com/problems/<strong>&lt;slug&gt;</strong>/</code>).</li>
+    <li>Put one <code>title,slug,difficulty</code> line per problem in a plain-text
+      <code>.csv</code> and import it.</li>
+  </ul>
+  <p>A spreadsheet with three columns exported as CSV works directly.</p>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    LeetCode Accountability Bot &mdash; <a href="https://github.com/TeraSurror/leetcode-bot">source on GitHub</a>.
+  </div>
+</footer>
+</body>
+</html>

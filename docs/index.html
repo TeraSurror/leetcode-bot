@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LeetCode Accountability Bot &mdash; Docs</title>
+<meta name="description" content="How to set up and use the LeetCode Accountability Bot: daily check-ins, streaks, curated problem lists, and solve tracking for a friend group.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">LeetCode <span>Accountability</span> Bot</a>
+    <nav class="top">
+      <a href="index.html" aria-current="page">Overview</a>
+      <a href="setup.html">Setup</a>
+      <a href="commands.html">Commands</a>
+      <a href="curated-lists.html">Curated lists</a>
+      <a href="https://github.com/TeraSurror/leetcode-bot">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>LeetCode Accountability Bot</h1>
+  <p class="lede">A Discord bot for a friend group that keeps each other honest about
+  grinding LeetCode &mdash; daily check-ins, streaks, curated problem lists, and both
+  automatic and manual solve tracking.</p>
+
+  <div class="cards">
+    <a href="setup.html"><div class="card"><strong>Setup &rarr;</strong><span>Create the Discord app, fill in <code>.env</code>, register the slash commands, start the bot.</span></div></a>
+    <a href="commands.html"><div class="card"><strong>Commands &rarr;</strong><span>Reference for <code>/register</code>, <code>/solved</code>, <code>/streak</code>, <code>/list</code>, and <code>/sync</code>.</span></div></a>
+    <a href="curated-lists.html"><div class="card"><strong>Curated lists &rarr;</strong><span>Import NeetCode 150, Blind 75, or your own hand-picked set from a CSV.</span></div></a>
+  </div>
+
+  <h2>What the bot does</h2>
+  <ul>
+    <li><strong>Tracks streaks.</strong> A streak is your run of consecutive days with at
+      least one solve, ending today or yesterday. It's computed from your solve history
+      at read time &mdash; nothing to reset or maintain.</li>
+    <li><strong>Records solves two ways.</strong> <code>/solved</code> logs anything
+      instantly and by hand. The auto-checker polls each linked LeetCode account and
+      picks up accepted submissions on its own.</li>
+    <li><strong>Follows a curated list.</strong> Point the bot at an ordered list of
+      problems (imported from CSV) and it tracks how far through you are and what to do
+      next.</li>
+    <li><strong>Posts a daily digest.</strong> Once a day it runs an auto-check, then
+      posts one embed: who solved what, everyone's streak, and everyone's list
+      progress.</li>
+  </ul>
+
+  <h2>A day in the life</h2>
+  <ol>
+    <li>You solve <em>Two Sum</em> on leetcode.com in the morning.</li>
+    <li>You run <code>/solved problem:"Two Sum" difficulty:Easy</code> in Discord &mdash;
+      the bot confirms with your new streak count and list progress. (If you'd linked
+      your account with <code>/register</code>, the daily auto-check would have caught it
+      anyway.)</li>
+    <li>Later, <code>/list next</code> hands you the next unsolved problem on your active
+      list, with its LeetCode link.</li>
+    <li>That evening, the digest fires in your designated channel: a single embed
+      summarising the group's day.</li>
+  </ol>
+
+  <h2>How solves and lists relate</h2>
+  <p>Your <strong>solve history</strong> is the source of truth &mdash; one row per
+  problem, per person, per day, tagged <code>manual</code> or <code>auto</code>. Streaks
+  come straight from it.</p>
+  <p>A <strong>list</strong> is a separate thing: just an ordered set of problems.
+  &ldquo;Progress&rdquo; is the overlap between what's on your active list and what
+  you've solved. So solving a problem that happens to be on your list advances it
+  automatically; solving something off-list still counts toward your streak, just not
+  toward that list's percentage.</p>
+
+  <div class="note">
+    <strong>Scope.</strong> This is built for a small, trusted, single-timezone friend
+    group. Day boundaries are UTC, and there are no admin/permission checks &mdash;
+    anyone can create a list or trigger a sync. See the
+    <a href="https://github.com/TeraSurror/leetcode-bot#known-scaffold-limitations-worth-knowing-before-you-extend-this">known
+    limitations</a> in the README before extending it.
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    LeetCode Accountability Bot &mdash; <a href="https://github.com/TeraSurror/leetcode-bot">source on GitHub</a>.
+    These docs are served from the <code>/docs</code> folder via GitHub Pages.
+  </div>
+</footer>
+</body>
+</html>
